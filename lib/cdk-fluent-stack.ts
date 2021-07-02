@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
+import * as kinesis from '@aws-cdk/aws-kinesis';
 
 export class CdkFluentStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -14,6 +15,7 @@ export class CdkFluentStack extends cdk.Stack {
     });
 
     const logbucket = new s3.Bucket(this, 'logbucket');
+    const myshard = new kinesis.Stream(this, 'myshard');
     const userdata = ec2.UserData.forLinux({
       shebang: '#!/bin/env bash',
     });
@@ -94,6 +96,9 @@ export class CdkFluentStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, 'ssm', {
       value: 'aws ssm start-session --target ' + fec2.instanceId,
+    });
+    new cdk.CfnOutput(this, 'kinesis', {
+      value: myshard.streamName,
     });
   }
 }
